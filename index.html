@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Tarefas Moderna</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1600&q=80')
+        center/cover no-repeat;
+      backdrop-filter: blur(6px);
+    }
+
+    .todo-container {
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+      padding: 30px;
+      width: 350px;
+      color: white;
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #00ffff;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-size: 1em;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 10px #00ffff;
+    }
+
+    button {
+      background: #00ffff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00cccc;
+      transform: scale(1.05);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+
+    li {
+      background: rgba(255, 255, 255, 0.1);
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.3s;
+    }
+
+    li.concluida {
+      text-decoration: line-through;
+      color: #aaa;
+      opacity: 0.7;
+    }
+
+    .botao-excluir {
+      background: transparent;
+      border: none;
+      color: #ff5555;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .botao-excluir:hover {
+      transform: scale(1.2);
+      color: #ff2222;
+    }
+  </style>
+</head>
+<body>
+  <div class="todo-container">
+    <h2>📝 Lista de Tarefas</h2>
+    <div class="input-group">
+      <input type="text" id="entradaTarefa" placeholder="Digite uma nova tarefa..." />
+      <button onclick="adicionarTarefa()">Adicionar</button>
+    </div>
+    <ul id="listaTarefas"></ul>
+  </div>
+
+  <script>
+    const entradaTarefa = document.getElementById('entradaTarefa');
+    const listaTarefas = document.getElementById('listaTarefas');
+
+    // Carrega as tarefas salvas ao abrir a página
+    window.onload = carregarTarefas;
+
+    function adicionarTarefa() {
+      const texto = entradaTarefa.value.trim();
+      if (texto === '') return alert('Por favor, digite uma tarefa!');
+      const li = criarElementoTarefa(texto);
+      listaTarefas.appendChild(li);
+      salvarTarefas();
+      entradaTarefa.value = '';
+    }
+
+    function criarElementoTarefa(texto) {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span onclick="alternarConclusao(this)">${texto}</span>
+        <button class="botao-excluir" onclick="excluirTarefa(this)">✖</button>
+      `;
+      return li;
+    }
+
+    function alternarConclusao(elemento) {
+      elemento.parentElement.classList.toggle('concluida');
+      salvarTarefas();
+    }
+
+    function excluirTarefa(botao) {
+      botao.parentElement.remove();
+      salvarTarefas();
+    }
+
+    function salvarTarefas() {
+      const tarefas = [];
+      document.querySelectorAll('#listaTarefas li').forEach(li => {
+        tarefas.push({
+          texto: li.querySelector('span').textContent,
+          concluida: li.classList.contains('concluida')
+        });
+      });
+      localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    }
+
+    function carregarTarefas() {
+      const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+      tarefas.forEach(tarefa => {
+        const li = criarElementoTarefa(tarefa.texto);
+        if (tarefa.concluida) li.classList.add('concluida');
+        listaTarefas.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
